@@ -1,0 +1,56 @@
+# dependências
+node_modules
+
+# build e cobertura
+dist
+build
+coverage
+.nyc_output
+
+# logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ambiente
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# sistema operacional
+.DS_Store
+
+# temporários
+.temp
+.tmp
+
+# runtime
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# relatórios
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# IDEs / editores
+.idea
+.project
+.classpath
+.c9
+*.launch
+.settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ts build info
+*.tsbuildinfo
