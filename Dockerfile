@@ -1,32 +1,19 @@
-# Stage 1 - build
+# Stage 1 — build
 FROM node:22-alpine AS builder
-
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm ci
-
 COPY . .
-
-ENV DATABASE_URL="postgresql://postgres:postgres@db:5432/oficina_db?schema=public"
-
 RUN npx prisma generate
 RUN npm run build
 
-# Stage 2 - runtime
+# Stage 2 — runtime (sem devDependencies, sem ENV hardcoded)
 FROM node:22-alpine AS runner
-
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci
-
+RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-
-ENV DATABASE_URL="postgresql://postgres:postgres@db:5432/oficina_db?schema=public"
-
+USER node
 EXPOSE 3000
-
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]

@@ -6,35 +6,45 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { WorkOrderStatus } from '../generated/prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateWorkOrderDto } from './dto/create-work-order.dto';
+import { WorkOrdersService } from './work-orders.service';
+import { CreateWorkOrderUseCase } from './application/use-cases/create-work-order.use-case'; // 👈 Importe o caso de uso
+import { WorkOrderStatus } from '../generated/prisma/client';
 import { CreateWorkOrderPartItemDto } from './dto/create-work-order-part-item.dto';
 import { CreateWorkOrderServiceItemDto } from './dto/create-work-order-service-item.dto';
 import { UpdateWorkOrderPartItemDto } from './dto/update-work-order-part-item.dto';
 import { UpdateWorkOrderServiceItemDto } from './dto/update-work-order-service-item.dto';
-import { WorkOrdersService } from './work-orders.service';
+import { QueryWorkOrderStatusUseCase } from './application/use-cases/query-work-order-status.use-case';
+import { ListWorkOrdersUseCase } from './application/use-cases/list-work-orders.use-case';
 
 @ApiTags('Work Orders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('work-orders')
 export class WorkOrdersController {
-  constructor(private readonly workOrdersService: WorkOrdersService) {}
+  constructor(
+    private readonly createWorkOrderUseCase: CreateWorkOrderUseCase,
+    private readonly queryWorkOrderStatusUseCase: QueryWorkOrderStatusUseCase, // 👈 Novo
+    private readonly listWorkOrdersUseCase: ListWorkOrdersUseCase,             // 👈 Novo
+    private readonly workOrdersService: WorkOrdersService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Cria uma nova ordem de serviço' })
   create(@Body() createWorkOrderDto: CreateWorkOrderDto) {
-    return this.workOrdersService.create(createWorkOrderDto);
+    // 3. Chamamos o execute() do UseCase no lugar do Service!
+    return this.createWorkOrderUseCase.execute(createWorkOrderDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lista todas as ordens de serviço' })
+  @ApiOperation({ summary: 'Lista todas as OS ativas ordenadas por prioridade' })
   findAll() {
-    return this.workOrdersService.findAll();
+    return this.listWorkOrdersUseCase.execute();
   }
 
   @Get('status/:status')
@@ -139,5 +149,11 @@ export class WorkOrdersController {
   @ApiOperation({ summary: 'Busca uma OS por ID' })
   findOne(@Param('id') id: string) {
     return this.workOrdersService.findOne(id);
+  }
+
+  @Get('tracking')
+  @ApiOperation({ summary: 'Consulta o status da OS pelo código e documento' })
+  getTracking(@Query('code') code: string, @Query('document') document: string) {
+    return this.queryWorkOrderStatusUseCase.execute(code, document);
   }
 }
