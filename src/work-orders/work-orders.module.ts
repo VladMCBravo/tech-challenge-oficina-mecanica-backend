@@ -11,6 +11,7 @@ import { CreateWorkOrderUseCase } from './application/use-cases/create-work-orde
 import { QueryWorkOrderStatusUseCase } from './application/use-cases/query-work-order-status.use-case';
 import { ListWorkOrdersUseCase } from './application/use-cases/list-work-orders.use-case';
 import { ApproveBudgetWebhookUseCase } from './application/use-cases/approve-budget-webhook.use-case';
+import { MockEmailService } from './infrastructure/email/mock-email.service';
 
 // 2. Importamos o Service antigo
 import { WorkOrdersService } from './work-orders.service';
@@ -21,6 +22,7 @@ import { WorkOrdersService } from './work-orders.service';
   providers: [
     WorkOrdersService,
     PrismaWorkOrderRepository,
+    MockEmailService,
     
     {
       provide: 'IWorkOrderRepository', 
@@ -72,11 +74,16 @@ import { WorkOrdersService } from './work-orders.service';
 
     {
       provide: ApproveBudgetWebhookUseCase,
-      useFactory: (workOrderRepo: PrismaWorkOrderRepository) => {
-        return new ApproveBudgetWebhookUseCase(workOrderRepo);
+      useFactory: (
+        workOrderRepo: PrismaWorkOrderRepository,
+        emailService: MockEmailService // 👈 Adicionamos aqui
+      ) => {
+        // Passamos o emailService como segundo argumento para o Use Case
+        return new ApproveBudgetWebhookUseCase(workOrderRepo, emailService); 
       },
-      inject: [PrismaWorkOrderRepository],
-    },
+      // Precisamos de avisar o NestJS para injetar também o MockEmailService
+      inject: [PrismaWorkOrderRepository, MockEmailService], 
+    }
   ],
   
   exports: [
