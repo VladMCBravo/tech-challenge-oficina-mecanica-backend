@@ -10,6 +10,7 @@ import { PrismaWorkOrderRepository } from './infrastructure/database/prisma/pris
 import { CreateWorkOrderUseCase } from './application/use-cases/create-work-order.use-case';
 import { QueryWorkOrderStatusUseCase } from './application/use-cases/query-work-order-status.use-case';
 import { ListWorkOrdersUseCase } from './application/use-cases/list-work-orders.use-case';
+import { ApproveBudgetWebhookUseCase } from './application/use-cases/approve-budget-webhook.use-case';
 
 // 2. Importamos o Service antigo
 import { WorkOrdersService } from './work-orders.service';
@@ -67,13 +68,22 @@ import { WorkOrdersService } from './work-orders.service';
         return new ListWorkOrdersUseCase(workOrderRepo);
       },
       inject: [PrismaWorkOrderRepository],
-    }
+    },
+
+    {
+      provide: ApproveBudgetWebhookUseCase,
+      useFactory: (workOrderRepo: PrismaWorkOrderRepository) => {
+        return new ApproveBudgetWebhookUseCase(workOrderRepo);
+      },
+      inject: [PrismaWorkOrderRepository],
+    },
   ],
   
   exports: [
     CreateWorkOrderUseCase,
     QueryWorkOrderStatusUseCase,
     ListWorkOrdersUseCase,
+    ApproveBudgetWebhookUseCase,
     WorkOrdersService
   ],
 })

@@ -21,6 +21,8 @@ import { UpdateWorkOrderPartItemDto } from './dto/update-work-order-part-item.dt
 import { UpdateWorkOrderServiceItemDto } from './dto/update-work-order-service-item.dto';
 import { QueryWorkOrderStatusUseCase } from './application/use-cases/query-work-order-status.use-case';
 import { ListWorkOrdersUseCase } from './application/use-cases/list-work-orders.use-case';
+import { ApproveBudgetWebhookUseCase } from './application/use-cases/approve-budget-webhook.use-case';
+import { ApproveBudgetWebhookDto } from './dto/approve-budget-webhook.dto';
 
 @ApiTags('Work Orders')
 @ApiBearerAuth()
@@ -29,8 +31,9 @@ import { ListWorkOrdersUseCase } from './application/use-cases/list-work-orders.
 export class WorkOrdersController {
   constructor(
     private readonly createWorkOrderUseCase: CreateWorkOrderUseCase,
-    private readonly queryWorkOrderStatusUseCase: QueryWorkOrderStatusUseCase, // 👈 Novo
-    private readonly listWorkOrdersUseCase: ListWorkOrdersUseCase,             // 👈 Novo
+    private readonly queryWorkOrderStatusUseCase: QueryWorkOrderStatusUseCase,
+    private readonly listWorkOrdersUseCase: ListWorkOrdersUseCase,
+    private readonly approveBudgetWebhookUseCase: ApproveBudgetWebhookUseCase, // 👈 Injetado aqui
     private readonly workOrdersService: WorkOrdersService,
   ) {}
 
@@ -155,5 +158,11 @@ export class WorkOrdersController {
   @ApiOperation({ summary: 'Consulta o status da OS pelo código e documento' })
   getTracking(@Query('code') code: string, @Query('document') document: string) {
     return this.queryWorkOrderStatusUseCase.execute(code, document);
+  }
+
+  @Post('webhook/approval')
+  @ApiOperation({ summary: 'Webhook para receber aprovação externa de orçamento' })
+  approveBudgetWebhook(@Body() dto: ApproveBudgetWebhookDto) {
+    return this.approveBudgetWebhookUseCase.execute(dto);
   }
 }

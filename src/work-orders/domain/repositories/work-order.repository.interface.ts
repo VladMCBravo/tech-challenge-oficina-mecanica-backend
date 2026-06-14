@@ -8,4 +8,5 @@ export interface IWorkOrderRepository {
   // 👇 Novos métodos para as APIs 2 e 3
   findTracking(code: string, document: string): Promise<any | null>;
   listActiveWithPriority(): Promise<WorkOrder[]>;
+  updateStatus(id: string, status: string): Promise<WorkOrder>;
 }

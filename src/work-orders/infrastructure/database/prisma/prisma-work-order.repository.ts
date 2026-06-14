@@ -73,4 +73,11 @@ export class PrismaWorkOrderRepository implements IWorkOrderRepository {
       return pA - pB;
     });
   }
+
+  async updateStatus(id: string, status: string): Promise<any> {
+    return this.prisma.workOrder.update({
+      where: { id },
+      data: { status: status as any }, // Usamos 'as any' caso o TypeScript reclame do Enum
+    });
+  }
 }
