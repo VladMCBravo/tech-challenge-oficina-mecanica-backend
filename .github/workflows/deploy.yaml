@@ -44,7 +44,7 @@ jobs:
           # docker build -t $DOCKER_IMAGE:${{ github.sha }} .
 
       - name: Login no DockerHub (Dry Run)
-        run: echo "✅ Simulando login seguro usando \${{ secrets.DOCKERHUB_USERNAME }}"
+        run: echo "✅ Simulando login seguro usando as credenciais do cofre"
 
       - name: Push da Imagem e Deploy na AWS EKS (Dry Run)
         run: |
